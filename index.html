@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Smart Calculator</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      font-family: Arial, sans-serif;
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      background: #111;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+
+    .calculator {
+      background: #222;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.6);
+      width: 300px;
+    }
+
+    .display {
+      background: #000;
+      color: #0f0;
+      padding: 15px;
+      font-size: 2rem;
+      text-align: right;
+      border-radius: 8px;
+      margin-bottom: 15px;
+      height: 60px;
+
+      /* ✅ إزالة السكرول بشكل نهائي */
+      overflow: hidden;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+    }
+
+    .buttons {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+    }
+
+    button {
+      padding: 20px;
+      font-size: 1.2rem;
+      border: none;
+      border-radius: 8px;
+      background: #444;
+      color: white;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+
+    button:hover {
+      background: #666;
+    }
+
+    .equal {
+      background: #0a84ff;
+    }
+
+    .equal:hover {
+      background: #006edc;
+    }
+
+    .clear {
+      background: #ff3b30;
+    }
+
+    .clear:hover {
+      background: #d9362e;
+    }
+  </style>
+</head>
+<body>
+  <div class="calculator">
+    <div class="display" id="display">0</div>
+    <div class="buttons">
+      <button onclick="clearDisplay()" class="clear">C</button>
+      <button onclick="appendValue('(')">(</button>
+      <button onclick="appendValue(')')">)</button>
+      <button onclick="appendValue('/')">÷</button>
+
+      <button onclick="appendValue('7')">7</button>
+      <button onclick="appendValue('8')">8</button>
+      <button onclick="appendValue('9')">9</button>
+      <button onclick="appendValue('*')">×</button>
+
+      <button onclick="appendValue('4')">4</button>
+      <button onclick="appendValue('5')">5</button>
+      <button onclick="appendValue('6')">6</button>
+      <button onclick="appendValue('-')">−</button>
+
+      <button onclick="appendValue('1')">1</button>
+      <button onclick="appendValue('2')">2</button>
+      <button onclick="appendValue('3')">3</button>
+      <button onclick="appendValue('+')">+</button>
+
+      <button onclick="appendValue('0')">0</button>
+      <button onclick="appendValue('.')">.</button>
+      <button onclick="calculate()" class="equal">=</button>
+      <button onclick="backspace()">⌫</button>
+    </div>
+  </div>
+
+  <script>
+    const display = document.getElementById('display');
+    let lastExpression = '';
+    let lastOperator = '';
+    let lastOperand = '';
+    let resultShown = false;
+
+    function appendValue(value) {
+      if (display.textContent === '0' || display.textContent === 'Error' || resultShown) {
+        display.textContent = value;
+        resultShown = false;
+      } else {
+        display.textContent += value;
+      }
+    }
+
+    function clearDisplay() {
+      display.textContent = '0';
+      lastExpression = '';
+      lastOperator = '';
+      lastOperand = '';
+      resultShown = false;
+    }
+
+    function backspace() {
+      let current = display.textContent;
+      if (current.length > 1) {
+        display.textContent = current.slice(0, -1);
+      } else {
+        display.textContent = '0';
+      }
+    }
+
+    function calculate() {
+      try {
+        let expression = display.textContent.replace(/÷/g, '/').replace(/×/g, '*');
+
+        // تكرار العملية إذا ضغط المستخدم = مرة ثانية
+        if (resultShown && lastOperator && lastOperand) {
+          expression = display.textContent + lastOperator + lastOperand;
+        } else {
+          // حفظ العملية الأخيرة فقط إذا كانت جديدة
+          const match = expression.match(/(.+)([+\-*/])([\d.]+)\s*$/);
+          if (match) {
+            lastExpression = expression;
+            lastOperator = match[2];
+            lastOperand = match[3];
+          } else {
+            lastOperator = '';
+            lastOperand = '';
+          }
+        }
+
+        const result = eval(expression);
+        display.textContent = result;
+        resultShown = true;
+      } catch (e) {
+        display.textContent = 'Error';
+        resultShown = false;
+      }
+    }
+  </script>
+</body>
+</html>
